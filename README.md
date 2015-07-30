@@ -5,7 +5,7 @@ GitMermaid generates branch graph diagrams of your git repository using
 generation of input diagram code, which can be visualised
 [here](http://www.naseer.in/mermaid-webapp/).
 
-# example output
+## example output
 
     graph TD;
     5db803f[Shorten hashes and remove tabs] --> fc304c5
@@ -16,3 +16,7 @@ generation of input diagram code, which can be visualised
     9e8fe09[Fix script to work] --> 38e4299
     38e4299[Rewrite and clean up script] --> 736447b
     736447b[Initial commit with initial tool] --> root
+
+## rendered with MermaidCLI
+
+![Repo Diagram](http://i.imgur.com/rBT3c23.png)

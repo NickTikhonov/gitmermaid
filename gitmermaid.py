@@ -23,12 +23,13 @@ with open(args.name, 'w') as target:
             continue
 
         if group[0] == "":
-            parents = ["Repository Created"]
+            parents = ["root"]
         else:
             parents = map(lambda x: x.strip(), group[0].split())
         ident = group[1]
         message = group[2]
 
         for parent in parents:
-            target.write("\t{}[{}] --> {}\n".format(ident, message, parent))
+            target.write("{}[{}] --> {}\n".format(ident[:7], message,
+                parent[:7]))
 

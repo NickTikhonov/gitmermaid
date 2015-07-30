@@ -1,4 +1,9 @@
 import subprocess
+import argparse
+
+parser = argparse.ArgumentParser(description='Generate a tree diagram for git repository in current directory')
+parser.add_argument("name")
+args = parser.parse_args()
 
 cpmap = dict()
 
@@ -10,19 +15,20 @@ lines = output.split('\n')
 
 groups = [lines[i:i+3] for i in range(0, len(lines), 3)]
 
-print "graph TD;"
+with open(args.name, 'w') as target:
+    target.write("graph TD;\n")
 
-for group in groups:
-    if len(group) < 3:
-        continue
+    for group in groups:
+        if len(group) < 3:
+            continue
 
-    if group[0] == "":
-        parents = ["Repository Created"]
-    else:
-        parents = map(lambda x: x.strip(), group[0].split())
-    ident = group[1]
-    message = group[2]
+        if group[0] == "":
+            parents = ["Repository Created"]
+        else:
+            parents = map(lambda x: x.strip(), group[0].split())
+        ident = group[1]
+        message = group[2]
 
-    for parent in parents:
-        print "\t{}[{}] --> {}".format(ident, message, parent)
+        for parent in parents:
+            target.write("\t{}[{}] --> {}\n".format(ident, message, parent))
 

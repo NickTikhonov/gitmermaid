@@ -7,7 +7,7 @@ args = parser.parse_args()
 
 cpmap = dict()
 
-command = "git log --pretty=%p%n%h%n%s%n%cd --abbrev-commit --all"
+command = "git log --pretty=%p%n%h%n%s%n%ar --abbrev-commit --all"
 process = subprocess.Popen(command.split(), stdout=subprocess.PIPE)
 output = process.communicate()[0]
 
@@ -28,8 +28,15 @@ with open(args.name, 'w') as target:
             parents = map(lambda x: x.strip(), group[0].split())
         ident = group[1]
         message = group[2]
+        time = group[3]
 
+        formatstr = ''
+        if len(parents) == 1:
+            formatstr = "{}({} - {}) --> {}\n"
+        else:
+            formatstr = "{}[{} - {}] --> {}\n"
+            
         for parent in parents:
-            target.write("{}[{}] --> {}\n".format(ident, message,
-                parent))
+            target.write(formatstr.format(ident, message,
+                time, parent))
 

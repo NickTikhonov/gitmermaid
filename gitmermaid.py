@@ -32,11 +32,19 @@ with open(args.name, 'w') as target:
 
         formatstr = ''
         if len(parents) == 1:
-            formatstr = "{}({} - {}) --> {}\n"
-        else:
             formatstr = "{}[{} - {}] --> {}\n"
+        else:
+            formatstr = "{}({} - {}) --> {}\n"
             
         for parent in parents:
             target.write(formatstr.format(ident, message,
                 time, parent))
+
+gencommand = "mermaid {}".format(args.name)
+process = subprocess.Popen(gencommand.split(), stdout=subprocess.PIPE)
+output = process.communicate()[0]
+
+opencommand = "open {}.png".format(args.name)
+process = subprocess.Popen(gencommand.split(), stdout=subprocess.PIPE)
+output = process.communicate()[0]
 

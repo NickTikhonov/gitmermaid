@@ -78,3 +78,6 @@ with open(args.name, 'w') as target:
         c = commit_for_log_output(group)
         if c:
             target.write(c.mermaid_ml())
+
+subprocess.call("mermaid {}".format(args.name).split())
+subprocess.call("open {}.png".format(args.name).split())

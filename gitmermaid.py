@@ -1,11 +1,67 @@
 import subprocess
 import argparse
 
+def commit_for_log_output(output_group):
+    '''
+    Builds Commit instance using output from the "git log" call. example input: 
+    ["79b47b6", "5ufc952", "Add mermaid CLI call", "12 minutes ago"]
+    '''
+
+    if len(output_group) != 4:
+        # Can't generate a Commit if the input is invalid
+        return None
+    else:
+        if output_group[0] == "":
+            parents = ["root"]
+        else:
+            parents = map(lambda x: x.strip(), output_group[0].split())
+
+        ident = output_group[1]
+        message = output_group[2]
+        time = output_group[3]
+
+        return Commit(ident, parents, message, time)
+
+
+class Commit:
+    '''
+    Represents one commit, in as provided by "git log" 
+    '''
+    def __init__(self, ident, parent_idents, message, time):
+        self.ident = ident
+        self.parent_idents = parent_idents
+        self.message = message
+        self.time = time
+
+    def __str__(self):
+        return "{}: {}".format(self.ident, self.message)
+    
+    def mermaid_ml(self):
+        '''
+        Return mermaid markdown representing this commit.
+        e.g. "hash[name] --> parent"
+        '''
+        lines = []
+        formatstr = ''
+        if len(self.parent_idents) == 1:
+            formatstr = "{}[{} - {}] --> {}\n"
+        else:
+            formatstr = "{}({} - {}) --> {}\n"
+
+        for parent in self.parent_idents:
+            lines.append(formatstr.format( \
+                    self.ident, \
+                    self.message, \
+                    self.time, \
+                    parent
+                ))
+
+        return "".join(lines)
+
+
 parser = argparse.ArgumentParser(description='Generate a tree diagram for git repository in current directory')
 parser.add_argument("name")
 args = parser.parse_args()
-
-cpmap = dict()
 
 command = "git log --pretty=%p%n%h%n%s%n%ar --abbrev-commit --all"
 process = subprocess.Popen(command.split(), stdout=subprocess.PIPE)
@@ -19,32 +75,6 @@ with open(args.name, 'w') as target:
     target.write("graph TD;\n")
 
     for group in groups:
-        if len(group) < 4:
-            continue
-
-        if group[0] == "":
-            parents = ["root"]
-        else:
-            parents = map(lambda x: x.strip(), group[0].split())
-        ident = group[1]
-        message = group[2]
-        time = group[3]
-
-        formatstr = ''
-        if len(parents) == 1:
-            formatstr = "{}[{} - {}] --> {}\n"
-        else:
-            formatstr = "{}({} - {}) --> {}\n"
-            
-        for parent in parents:
-            target.write(formatstr.format(ident, message,
-                time, parent))
-
-gencommand = "mermaid {}".format(args.name)
-process = subprocess.Popen(gencommand.split(), stdout=subprocess.PIPE)
-output = process.communicate()[0]
-
-opencommand = "open {}.png".format(args.name)
-process = subprocess.Popen(gencommand.split(), stdout=subprocess.PIPE)
-output = process.communicate()[0]
-
+        c = commit_for_log_output(group)
+        if c:
+            target.write(c.mermaid_ml())

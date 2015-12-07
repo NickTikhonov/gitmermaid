@@ -16,10 +16,7 @@ def commit_for_log_output(output_group):
         else:
             parents = map(lambda x: x.strip(), output_group[0].split())
 
-        ident = output_group[1]
-        message = output_group[2]
-        time = output_group[3]
-
+        ident, message, time = output_group
         return Commit(ident, parents, message, time)
 
 
